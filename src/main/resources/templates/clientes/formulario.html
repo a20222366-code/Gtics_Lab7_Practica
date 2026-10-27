@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario de clientes</title>
+</head>
+<body>
+
+<!--Implementamos el navbar-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!--
+    Si el ID es null, muestra "Registrar cliente".
+    Si el ID tiene un valor, muestra "Editar cliente".
+-->
+<h1 th:text="${customer.id == null ? 'Registrar cliente' : 'Editar cliente'}">
+    Formulario de clientes
+</h1>
+
+
+<!--
+    th:action: dirección a la que se envía el formulario.
+    th:object: objeto Java al que se vinculan los campos.
+    method="post": envía los datos mediante una petición POST.
+-->
+<form th:action="@{/clientes/guardar}"
+      th:object="${customer}"
+      method="post">
+
+    <!--
+         Campo oculto que conserva el ID del cliente
+         cuando se está editando uno existente.
+     -->
+    <input type="hidden" th:field="*{id}">
+
+    <div>
+        <label for="name">Nombre completo:</label>
+        <input type="text" id="name" th:field="*{name}">
+
+        <!-- Muestra el error si el nombre no es válido -->
+        <p th:if="${#fields.hasErrors('name')}"
+           th:errors="*{name}"></p>
+    </div>
+
+    <div>
+        <label for="documentType">Tipo de documento:</label>
+
+        <!-- Lista desplegable vinculada a customer.documentType -->
+        <select id="documentType" th:field="*{documentType}">
+            <!-- Opción inicial vacía -->
+            <option value="">Seleccione un tipo</option>
+            <option value="DNI">DNI</option>
+            <option value="RUC">RUC</option>
+        </select>
+
+        <!-- Muestra errores del tipo de documento -->
+        <p th:if="${#fields.hasErrors('documentType')}"
+           th:errors="*{documentType}"></p>
+    </div>
+
+    <div>
+        <label for="document">Número de documento:</label>
+
+        <!-- Vincula el campo con customer.document -->
+        <input type="text" id="document" th:field="*{document}">
+
+        <!-- Muestra errores de formato o documento duplicado -->
+        <p th:if="${#fields.hasErrors('document')}"
+           th:errors="*{document}"></p>
+    </div>
+
+    <!-- Envía los datos al Controller -->
+    <button type="submit">Guardar</button>
+
+    <!-- Regresa a la lista de clientes -->
+    <a th:href="@{/clientes}">Cancelar</a>
+
+</form>
+
+</body>
+</html>
