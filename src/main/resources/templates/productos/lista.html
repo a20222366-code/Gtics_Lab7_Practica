@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Productos</title>
+</head>
+
+<body>
+
+<!-- Inserta la barra de navegación reutilizable -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Título de la página -->
+<h1>Lista de productos</h1>
+
+<!-- Enlace para abrir el formulario de registro -->
+<a th:href="@{/productos/nuevo}">Registrar producto</a>
+
+<!-- Tabla que muestra los productos -->
+<table border="1">
+
+    <!-- Encabezados de las columnas -->
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+    <!--
+        Recorre la lista "productos".
+        En cada repetición, "producto" representa
+        un producto diferente de la lista.
+    -->
+    <tr th:each="producto : ${productos}">
+
+        <!-- Muestra las propiedades del producto actual -->
+        <td th:text="${producto.id}"></td>
+        <td th:text="${producto.name}"></td>
+        <td th:text="${producto.price}"></td>
+        <td th:text="${producto.stock}"></td>
+
+        <td>
+            <!--
+                Construye el enlace de edición utilizando
+                el ID del producto de esta fila.
+            -->
+            <a th:href="@{/productos/editar/{id}(id=${producto.id})}">
+                Editar
+            </a>
+
+            <!--
+                Formulario para solicitar la eliminación
+                del producto correspondiente a su ID.
+            -->
+            <form th:action="@{/productos/eliminar/{id}(id=${producto.id})}"
+                  method="post"
+                  style="display:inline;">
+
+                <!-- Envía el formulario al pulsar el botón -->
+                <button type="submit">Eliminar</button>
+            </form>
+        </td>
+    </tr>
+
+    <!--
+        Si la lista está vacía, muestra un mensaje.
+        colspan="5" hace que la celda ocupe cinco columnas.
+    -->
+    <tr th:if="${#lists.isEmpty(productos)}">
+        <td colspan="5">No hay productos registrados.</td>
+    </tr>
+
+    </tbody>
+</table>
+
+</body>
+</html>

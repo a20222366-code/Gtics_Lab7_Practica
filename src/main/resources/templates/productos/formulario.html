@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario de producto</title>
+</head>
+
+<body>
+
+<!-- Inserta la barra de navegación reutilizable -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!--
+    Si el producto no tiene ID, muestra "Registrar producto".
+    Si tiene ID, muestra "Editar producto".
+-->
+<h1 th:text="${product.id == null ? 'Registrar producto' : 'Editar producto'}">
+    Formulario de producto
+</h1>
+
+<!--
+    th:action: dirección a la que se envía el formulario.
+    th:object: objeto Java vinculado a los campos.
+    method="post": envía los datos mediante POST.
+-->
+<form th:action="@{/productos/guardar}"
+      th:object="${product}"
+      method="post"
+      novalidate>
+
+    <!-- Campo oculto que conserva el ID al editar -->
+    <input type="hidden" th:field="*{id}">
+
+    <div>
+        <!-- Etiqueta del campo nombre -->
+        <label for="name">Nombre:</label>
+
+        <!--
+            Vincula el campo con product.name.
+            required exige que se complete en el navegador.
+        -->
+        <input type="text" id="name" th:field="*{name}" required>
+
+        <!-- Muestra los errores del nombre -->
+        <p th:if="${#fields.hasErrors('name')}"
+           th:errors="*{name}"></p>
+    </div>
+
+    <div>
+        <label for="price">Precio:</label>
+
+        <!--
+            Campo numérico vinculado con product.price.
+            min="0.01": precio mínimo.
+            step="0.01": permite decimales en centésimas.
+            required: campo obligatorio en el navegador.
+        -->
+
+        <input type="number" id="price" th:field="*{price}"
+               step="0.01">
+
+
+        <!-- Muestra los errores del precio -->
+        <p th:if="${#fields.hasErrors('price')}"
+           th:errors="*{price}"></p>
+    </div>
+
+    <div>
+        <label for="stock">Stock:</label>
+
+        <!--
+            Campo numérico vinculado con product.stock.
+            min="0": no permite cantidades negativas
+            mediante la validación normal del navegador.
+            step="1": indica cantidades enteras.
+            required: campo obligatorio.
+        -->
+
+        <input type="number" id="stock" th:field="*{stock}"
+               step="1">
+
+
+        <!-- Muestra los errores del stock -->
+        <p th:if="${#fields.hasErrors('stock')}"
+           th:errors="*{stock}"></p>
+    </div>
+
+    <!-- Envía los datos al Controller para guardarlos -->
+    <button type="submit">Guardar</button>
+
+    <!-- Regresa a la lista de productos -->
+    <a th:href="@{/productos}">Cancelar</a>
+
+</form>
+
+</body>
+</html>
