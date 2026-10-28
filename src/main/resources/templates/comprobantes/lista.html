@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!-- Indica que el documento utiliza HTML5. -->
+
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- lang="es" indica que la página está en español.
+     xmlns:th permite utilizar los atributos de Thymeleaf
+     para mostrar datos dinámicos y generar enlaces. -->
+
+<head>
+    <!-- Contiene la configuración y los recursos de la página. -->
+
+    <meta charset="UTF-8">
+    <!-- Permite mostrar correctamente tildes, ñ y otros caracteres. -->
+
+    <title>Comprobantes</title>
+    <!-- Define el título de la página que aparece en la pestaña del navegador. -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <!-- Importa Bootstrap para aplicar estilos, tablas, botones y diseño. -->
+</head>
+
+<body>
+<!-- Aquí comienza el contenido visible de la página. -->
+
+<!-- Inserta el fragmento navbar, que contiene la barra de navegación.
+     Se reutiliza desde el archivo fragments/navbar.html. -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Contenedor principal con un margen superior de Bootstrap. -->
+<div class="container mt-4">
+
+    <!-- Organiza el título y el botón en una misma fila,
+         separados y alineados verticalmente. -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <!-- Título principal de la página. -->
+        <h2>Comprobantes electrónicos</h2>
+
+        <!-- Enlace que lleva al formulario para crear un comprobante.
+             th:href genera la URL mediante Thymeleaf.
+             Las clases de Bootstrap dan estilo de botón azul. -->
+        <a th:href="@{/comprobantes/nuevo}" class="btn btn-primary">
+            Nuevo comprobante
+        </a>
+    </div>
+
+    <!-- Muestra un mensaje de éxito solamente si existe la variable
+         "mensaje" en el modelo enviado por el controlador.
+         th:text coloca el contenido de esa variable en el HTML. -->
+    <div th:if="${mensaje}" class="alert alert-success"
+         th:text="${mensaje}"></div>
+
+    <!-- Crea una tabla con bordes y filas con colores alternados. -->
+    <table class="table table-bordered table-striped">
+
+        <!-- Encabezado de la tabla con fondo oscuro. -->
+        <thead class="table-dark">
+        <tr>
+            <!-- Columnas que indican qué información se mostrará. -->
+            <th>N.º</th>
+            <th>Tipo</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Documento</th>
+        </tr>
+        </thead>
+
+        <!-- Cuerpo de la tabla, donde se muestran los comprobantes. -->
+        <tbody>
+
+        <!-- Recorre la lista "comprobantes" recibida desde el controlador.
+             En cada repetición, "comprobante" representa un elemento
+             de esa lista. -->
+        <tr th:each="comprobante : ${comprobantes}">
+
+            <!-- Muestra el ID del comprobante. -->
+            <td th:text="${comprobante.id}"></td>
+
+            <!-- Muestra el tipo de comprobante, por ejemplo,
+                 Factura o Boleta. -->
+            <td th:text="${comprobante.type}"></td>
+
+            <!-- Muestra la fecha del comprobante. -->
+            <td th:text="${comprobante.date}"></td>
+
+            <!-- Accede al cliente asociado al comprobante
+                 y muestra su nombre. -->
+            <td th:text="${comprobante.customer.name}"></td>
+
+            <!-- Accede al cliente asociado y muestra su documento. -->
+            <td th:text="${comprobante.customer.document}"></td>
+        </tr>
+
+        <!-- Comprueba si la lista de comprobantes está vacía.
+             Si no hay registros, muestra un mensaje informativo. -->
+        <tr th:if="${#lists.isEmpty(comprobantes)}">
+
+            <!-- colspan="5" hace que la celda ocupe las cinco columnas.
+                 text-center centra el mensaje. -->
+            <td colspan="5" class="text-center">
+                Todavía no hay comprobantes registrados.
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <!-- Enlace para regresar a la página principal.
+         btn-secondary aplica el estilo de botón gris de Bootstrap. -->
+    <a th:href="@{/}" class="btn btn-secondary">Volver al inicio</a>
+
+</div>
+<!-- Aquí termina el contenedor principal. -->
+
+</body>
+<!-- Aquí termina el contenido visible de la página. -->
+
+</html>
+<!-- Aquí termina el documento HTML. -->

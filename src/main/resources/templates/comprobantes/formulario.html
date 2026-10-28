@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!-- Indica que el documento utiliza HTML5. -->
+
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- lang="es" indica que la página está en español.
+     xmlns:th permite utilizar los atributos de Thymeleaf. -->
+
+<head>
+    <!-- Contiene la configuración de la página. -->
+
+    <meta charset="UTF-8">
+    <!-- Permite mostrar correctamente tildes y caracteres especiales. -->
+
+    <title>Nuevo comprobante</title>
+    <!-- Define el título que aparece en la pestaña del navegador. -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <!-- Importa Bootstrap para aplicar estilos al formulario,
+         los botones, la tabla y otros elementos. -->
+</head>
+
+<body>
+<!-- Aquí comienza el contenido visible de la página. -->
+
+<!-- Inserta la barra de navegación reutilizable desde el fragmento navbar. -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Contenedor principal con márgenes superior e inferior. -->
+<div class="container mt-4 mb-5">
+
+    <!-- Título principal del formulario. -->
+    <h2>Registrar comprobante electrónico</h2>
+
+    <!-- Muestra un mensaje de error general si existe errorGlobal.
+         th:text muestra el contenido de esa variable. -->
+    <div th:if="${errorGlobal}" class="alert alert-danger"
+         th:text="${errorGlobal}"></div>
+
+    <!-- Formulario que envía los datos al controlador.
+         th:action indica la dirección a la que se envían los datos.
+         th:object vincula los campos con el objeto invoiceForm.
+         method="post" envía los datos mediante una petición POST. -->
+    <form th:action="@{/comprobantes/guardar}"
+          th:object="${invoiceForm}"
+          method="post">
+
+        <!-- Campo para seleccionar el tipo de comprobante. -->
+        <div class="mb-3">
+
+            <label class="form-label">Tipo de comprobante</label>
+
+            <!-- Vincula el selector con el atributo type de invoiceForm. -->
+            <select th:field="*{type}" class="form-select">
+
+                <!-- Opción inicial para indicar que debe elegirse un tipo. -->
+                <option value="">Seleccione el tipo</option>
+
+                <!-- Opciones disponibles para el comprobante. -->
+                <option value="Factura">Factura</option>
+                <option value="Boleta">Boleta</option>
+            </select>
+
+            <!-- Si el campo type tiene errores de validación,
+                 muestra el mensaje correspondiente. -->
+            <div class="text-danger"
+                 th:if="${#fields.hasErrors('type')}"
+                 th:errors="*{type}"></div>
+        </div>
+
+        <!-- Campo para ingresar la fecha del comprobante. -->
+        <div class="mb-3">
+
+            <label class="form-label">Fecha</label>
+
+            <!-- Muestra un selector de fecha.
+                 th:field vincula el campo con el atributo date de invoiceForm. -->
+            <input type="date" th:field="*{date}" class="form-control">
+
+            <!-- Muestra el error de validación de la fecha, si existe. -->
+            <div class="text-danger"
+                 th:if="${#fields.hasErrors('date')}"
+                 th:errors="*{date}"></div>
+        </div>
+
+        <!-- Campo para seleccionar el cliente del comprobante. -->
+        <div class="mb-3">
+
+            <label class="form-label">Cliente</label>
+
+            <!-- Vincula el cliente seleccionado con customerId de invoiceForm. -->
+            <select th:field="*{customerId}" class="form-select">
+
+                <!-- Opción inicial para seleccionar un cliente. -->
+                <option value="">Seleccione un cliente</option>
+
+                <!-- Recorre la lista de clientes recibida desde el controlador.
+                     cliente representa cada elemento de la lista.
+                     th:value define el ID que se enviará.
+                     th:text muestra el nombre y los datos del documento. -->
+                <option th:each="cliente : ${clientes}"
+                        th:value="${cliente.id}"
+                        th:text="${cliente.name + ' - ' + cliente.documentType + ': ' + cliente.document}">
+                </option>
+            </select>
+
+            <!-- Muestra el error de validación del cliente, si existe. -->
+            <div class="text-danger"
+                 th:if="${#fields.hasErrors('customerId')}"
+                 th:errors="*{customerId}"></div>
+        </div>
+
+        <!-- Título de la sección de productos. -->
+        <h4 class="mt-4">Productos</h4>
+
+        <!-- Instrucciones para seleccionar productos y cantidades. -->
+        <p class="text-muted">
+            Marca los productos que deseas incluir e ingresa sus cantidades.
+        </p>
+
+        <!-- Permite desplazarse horizontalmente por la tabla
+             cuando la pantalla es pequeña. -->
+        <div class="table-responsive">
+
+            <!-- Tabla que muestra los productos disponibles. -->
+            <table class="table table-bordered align-middle">
+
+                <!-- Encabezado de la tabla con fondo oscuro. -->
+                <thead class="table-dark">
+                <tr>
+                    <th>Incluir</th>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Stock disponible</th>
+                    <th>Cantidad</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <!-- Recorre la lista de productos.
+                     producto representa el producto actual.
+                     estado.index indica su posición, comenzando desde 0. -->
+                <tr th:each="producto, estado : ${productos}">
+
+                    <td>
+                        <!-- Campo oculto que envía el ID del producto.
+                             No se muestra visualmente.
+                             Su nombre identifica la posición del detalle
+                             dentro de la lista details del formulario. -->
+                        <input type="hidden"
+                               th:name="|details[${estado.index}].productId|"
+                               th:value="${producto.id}">
+
+                        <!-- Casilla para indicar si se selecciona el producto.
+                             Si está marcada, envía el valor true.
+                             El nombre vincula la selección con el detalle
+                             correspondiente del formulario. -->
+                        <input type="checkbox"
+                               class="form-check-input"
+                               th:name="|details[${estado.index}].selected|"
+                               value="true">
+                    </td>
+
+                    <!-- Muestra el nombre del producto. -->
+                    <td th:text="${producto.name}"></td>
+
+                    <!-- Muestra el precio del producto. -->
+                    <td th:text="${producto.price}"></td>
+
+                    <!-- Muestra el stock disponible del producto. -->
+                    <td th:text="${producto.stock}"></td>
+
+                    <td>
+                        <!-- Campo para ingresar la cantidad que se desea comprar.
+                             min="1" establece el mínimo permitido en el navegador.
+                             value="1" coloca 1 como cantidad inicial.
+                             th:name vincula la cantidad con el detalle
+                             correspondiente de la lista details. -->
+                        <input type="number"
+                               class="form-control"
+                               min="1"
+                               value="1"
+                               th:name="|details[${estado.index}].quantity|">
+                    </td>
+                </tr>
+
+                <!-- Comprueba si no existen productos en la lista.
+                     Si está vacía, muestra un mensaje informativo. -->
+                <tr th:if="${#lists.isEmpty(productos)}">
+
+                    <!-- colspan="5" hace que la celda ocupe cinco columnas.
+                         text-center centra el mensaje. -->
+                    <td colspan="5" class="text-center">
+                        No hay productos registrados.
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botón que envía el formulario para guardar el comprobante. -->
+        <button type="submit" class="btn btn-primary">
+            Guardar comprobante
+        </button>
+
+        <!-- Enlace para cancelar y volver a la lista de comprobantes. -->
+        <a th:href="@{/comprobantes}" class="btn btn-secondary">
+            Cancelar
+        </a>
+
+    </form>
+    <!-- Aquí termina el formulario. -->
+
+</div>
+<!-- Aquí termina el contenedor principal. -->
+
+</body>
+<!-- Aquí termina el contenido visible de la página. -->
+
+</html>
+<!-- Aquí termina el documento HTML. -->
